@@ -33,7 +33,8 @@ type
     procedure edt_entradaChange(Sender: TObject);
     procedure edt_entradaKeyPress(Sender: TObject; var Key: Char);
     procedure FormActivate(Sender: TObject);
-    procedure edt_buscaKeyPress(Sender: TObject; var Key: Char);
+    procedure edt_buscaKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
     procedure edt_buscaKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
   private
@@ -48,7 +49,6 @@ type
 
 var
   FAnalisadorLexico: TFAnalisadorLexico;
-  Num_Tokens: integer;
 
 implementation
 
@@ -84,7 +84,6 @@ procedure TFAnalisadorLexico.btn_limparClick(Sender: TObject);
 begin
   if MessageDlg('Deseja excluir todas as Palavras?', mtInformation, mbYesNo, 0) = mrYes then
   begin
-    Num_Tokens := 1;
     slEntrada.Clear;
     lst_vw.Clear;
     FAnalisadorLexico.FormActivate(Sender);
@@ -105,6 +104,36 @@ end;
 
 procedure TFAnalisadorLexico.edt_buscaKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
+begin
+  if trim(edt_entrada.Text) = EmptyStr then
+    shp_status.Brush.Color := clYellow;
+  // espaço
+  If Ord(Key) = 32 Then
+  begin
+    if trim(edt_busca.Text) <> EmptyStr then
+    begin
+      if ((sTemp = '*') and (Teste = True)) and (slEntrada.IndexOf(edt_busca.Text)>=0) then
+      begin
+        MessageDlg('"' + trim(edt_busca.Text) + '"  ' + 'foi encontrada!', mtInformation, mbOKCancel, 0);
+        edt_busca.Clear;
+        // Acompanha linha com a seleção
+        stg_analisador.Row := 1;
+      end
+      else
+      begin
+        MessageDlg('"' + trim(edt_busca.Text) + '"  ' + 'não foi encontrada!', mtError, mbOKCancel, 0);
+        edt_busca.Clear;
+        // Acompanha linha com a seleção
+        stg_analisador.Row := 1;
+      end;
+    end
+    else
+      MessageDlg('O campo está em Branco!', mtWarning, mbOKCancel, 0);
+  end;
+end;
+
+procedure TFAnalisadorLexico.edt_buscaKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
 var
   cont, posi, I, J: integer;
 begin
@@ -120,7 +149,7 @@ begin
       begin
         stg_analisador.Options := stg_analisador.Options - [goRowSelect];
 
-        if (stg_analisador.Cells[j, posi] <> '') then
+        if (stg_analisador.Cells[j, posi] <> '') and (Pos(edt_busca.Text,slEntrada.Text)>0) then
         begin
           shp_status.Brush.Color := clGreen;
           sTemp := copy(stg_analisador.Cells[0, posi],
@@ -132,45 +161,10 @@ begin
           shp_status.Brush.Color := clRed;
           Teste := False;
         end;
-
-        if sTemp <> '*' then
-        begin
-          stg_analisador.Options := stg_analisador.Options + [goRowSelect];
-          stg_analisador.Row := posi;
-        end
-        else
-          stg_analisador.Options := stg_analisador.Options - [goRowSelect];
+        stg_analisador.Options := stg_analisador.Options + [goRowSelect];
+        stg_analisador.Row := posi-1;
       end;
     end;
-  end;
-end;
-
-procedure TFAnalisadorLexico.edt_buscaKeyPress(Sender: TObject; var Key: Char);
-begin
-  if trim(edt_entrada.Text) = EmptyStr then
-    shp_status.Brush.Color := clYellow;
-  // espaço
-  If Ord(Key) = 32 Then
-  begin
-    if trim(edt_busca.Text) <> EmptyStr then
-    begin
-      if ((sTemp = '*') and (Teste = True)) then
-      begin
-        MessageDlg('"' + trim(edt_busca.Text) + '"  ' + 'foi reconhecida!', mtInformation, mbOKCancel, 0);
-        edt_busca.Clear;
-        // Acompanha linha com a seleção
-        stg_analisador.Row := 1;
-      end
-      else
-      begin
-        MessageDlg('"' + trim(edt_busca.Text) + '"  ' + 'não foi reconhecida!', mtError, mbOKCancel, 0);
-        edt_busca.Clear;
-        // Acompanha linha com a seleção
-        stg_analisador.Row := 1;
-      end;
-    end
-    else
-      MessageDlg('O campo está em Branco!', mtWarning, mbOKCancel, 0);
   end;
 end;
 
@@ -199,8 +193,6 @@ procedure TFAnalisadorLexico.FormActivate(Sender: TObject);
 var I, j, Num_Linhas, Num_Colunas: integer;
 begin
   shp_status.Brush.Color := clWhite;
-  Num_Tokens := 1;
-
   Num_Linhas  := 101;
   Num_Colunas := 26;
 

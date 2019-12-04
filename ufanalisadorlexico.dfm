@@ -13,6 +13,7 @@ object FAnalisadorLexico: TFAnalisadorLexico
   OldCreateOrder = False
   Position = poDesktopCenter
   Scaled = False
+  WindowState = wsMaximized
   OnActivate = FormActivate
   OnClose = FormClose
   OnShow = FormShow
@@ -57,9 +58,10 @@ object FAnalisadorLexico: TFAnalisadorLexico
     end
     object shp_status: TShape
       Left = 12
-      Top = 477
-      Width = 262
-      Height = 3
+      Top = 471
+      Width = 263
+      Height = 10
+      Anchors = [akLeft, akRight, akBottom]
       Brush.Color = clRed
       Pen.Color = clWhite
       Pen.Style = psClear
@@ -103,8 +105,8 @@ object FAnalisadorLexico: TFAnalisadorLexico
       OnClick = btn_addClick
     end
     object btn_limpar: TButton
-      Left = 106
-      Top = 397
+      Left = 193
+      Top = 394
       Width = 81
       Height = 34
       Anchors = [akRight, akBottom]
@@ -125,13 +127,14 @@ object FAnalisadorLexico: TFAnalisadorLexico
       ViewStyle = vsList
     end
     object btn_remover: TButton
-      Left = 193
-      Top = 397
+      Left = 106
+      Top = 394
       Width = 81
       Height = 34
       Anchors = [akRight, akBottom]
       Caption = 'Remover'
       TabOrder = 4
+      Visible = False
       OnClick = btn_removerClick
     end
     object edt_busca: TEdit
@@ -142,7 +145,7 @@ object FAnalisadorLexico: TFAnalisadorLexico
       Anchors = [akLeft, akRight, akBottom]
       TabOrder = 5
       OnKeyDown = edt_buscaKeyDown
-      OnKeyPress = edt_buscaKeyPress
+      OnKeyUp = edt_buscaKeyUp
     end
   end
   object stg_analisador: TStringGrid
@@ -153,7 +156,6 @@ object FAnalisadorLexico: TFAnalisadorLexico
     Anchors = [akLeft, akTop, akRight, akBottom]
     ColCount = 27
     DefaultColWidth = 30
-    Enabled = False
     FixedCols = 0
     RowCount = 1
     FixedRows = 0
